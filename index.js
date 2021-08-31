@@ -1,6 +1,19 @@
-const db = require('./server');
+// const db = require('./server');
 const inquirer = require('inquirer');
-const server = require('./server');
+// const server = require('./server');
+const mysql = require("mysql2")
+
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Password123',
+    database: 'companyRoster_db',
+}, console.log('Sucessful connection to database.'));
+
+db.connect( err => {
+    if (err) throw err;
+    initialPrompt()
+})
 
 const firstQuestion = {
     type: 'list',
@@ -47,12 +60,12 @@ function initialPrompt() {
 
     function viewEmployees () {
         db.query(
-            "SELECT employees.id employees_id, CONCAT(employees.first_name, '', employees.last_name)AS employees_name, roles.title, department.name AS department, roles.sarlary, concat(manager.first_name, '', manager.last_name) AS manager_name FROM employees employees LEFT JOIN employees manager ON employees.manager_id = manager.id INNER JOIN roles ON (roles.id = employees.role_id) INNER JOIN department ON(department.id = roles.department_id) ORDER BY employees.id;",
+            "SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name)AS employees_name, role.title, department.name AS department, role.salary, concat(manager.first_name, ' ', manager.last_name) AS manager_name FROM employee LEFT JOIN employee manager ON employee.manager_id = manager.id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON(department.id = role.department_id) ORDER BY employee.id;",
             function (err, answer) {
                 if (err) {
                     console.log(err);
                 }
-                console.log(answer);
+                console.table(answer);
                 //return to options
                 initialPrompt();
             }
@@ -119,12 +132,12 @@ function initialPrompt() {
     }
     function viewRoles() {
         db.query(
-            "SELECT roles.id, title, department.name AS department, salary FROM roles roles INNER JOIN department department ON roles.department_id = department.id;",
+            "SELECT role.id, title, department.name AS department, salary FROM role INNER JOIN department ON role.department_id = department.id;",
             (err, answer) => {
                 if (err) {
                     console.log(err);
                 }
-                console.log(answer);
+                console.table(answer);
                 initialPrompt();
             }
         );
@@ -173,7 +186,7 @@ function initialPrompt() {
                 if (err) {
                     console.log(err);
                 }
-                console.log(answer);
+                console.table(answer);
                 initialPrompt();
             }
         );
