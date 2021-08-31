@@ -150,13 +150,50 @@ function initialPrompt() {
                 'Finance',
                 'Legal',
                 'Engineering',],}
+                
     ]).then((answer) => {
         console.log(answer);
-        let newRole = answer.roleName;
-        let newSalary = answer.roleSalary;
+        let newRole = answer.newName;
+        let newSalary = answer.newSalary;
         let roleDepartment = answer.roleDepartment;
-    })
+        db.query(
+            `INSERT INTO roles(title, salary, department.name AS department) VALUES(${newRole}, ${newSalary}, ${roleDepartment});`,
+            function (err, results) {
+                if (err) return err;
+                console.log('New Role Added');
+            }
+        );
+        initialPrompt();
+    });
     }
+    function viewDepartments() {
+        db.query(
+            "SELECT id, name AS department FROM department;",
+            (err, answer) => {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(answer);
+                initialPrompt();
+            }
+        );
+    }
+    function departmentQuestions() {
+        inquirer.prompt([{
+            type: 'input',
+            message: "What is the name of the new Department?",
+            name: 'newDepartmentName',},
+    ]).then((answer) => {
+        let newDepartmentName = answer.newDepartmentName;
+        db.query(`INSERT INTO departments (name) VALUES ("${newDepartmentName}")`,
+        function (err, results) {
+            if (err) return err;
+            console.log("\n New Department Added \n");
+        });
+        initialPrompt();
+    });
+    }
+
 
     // function updateEmployee() {
     //     inquirer.prompt([{
